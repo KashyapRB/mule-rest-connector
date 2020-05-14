@@ -5,16 +5,20 @@ import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import org.mule.runtime.extension.api.annotation.Alias;
+import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
+import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.mule.runtime.extension.api.annotation.param.Config;
-import org.mule.runtime.extension.api.annotation.param.Connection;
 
 /**
  * This class is a container for operations, every public method in this class
@@ -38,9 +42,9 @@ public class RESTOperations {
 			URLConnection con = url.openConnection();
 			con.addRequestProperty("User-Agent", "Chrome");
 			LOGGER.info("Response recieved.........");
-			response = getHTTPResponse(con);
+			response = getHttpResponse(con);
 			LOGGER.info("payload:" + response);
-			
+
 		} catch (IOException e) {
 			LOGGER.error("Error occured");
 			e.printStackTrace();
@@ -49,7 +53,52 @@ public class RESTOperations {
 		return response;
 	}
 
-	private String getHTTPResponse(URLConnection con) throws UnsupportedEncodingException, IOException {
+	@MediaType(value = ANY, strict = false)
+	@Alias("postCall")
+	public String postCall(@Config RESTConfiguration c, @ParameterGroup(name = "CustomParams") CustomParameter param) {
+
+		String response = null;
+		String protocol = c.getProtocol().equals("HTTPS") ? "https://" : "http://";
+
+		try {
+			URL url = new URL(protocol + c.getHost() + c.getBasePath());
+			URLConnection con = url.openConnection();
+			String jsonString = "{\"name\": \"" + param.getFirstName() + "\", \"job\":\"" + param.getJob() + "\"}";
+			con.setDoOutput(true);
+			con.addRequestProperty("User-Agent", "Chrome");
+
+			if (c.getProtocol().equals("HTTPS")) {
+				LOGGER.info("Processing HTTPS request");
+				HttpsURLConnection https = (HttpsURLConnection) con;
+				https.setRequestMethod("POST");
+				https.setRequestProperty("Content-Type", "application/json; utf-8");
+				try (OutputStream os = con.getOutputStream()) {
+					byte[] input = jsonString.getBytes("utf-8");
+					os.write(input, 0, input.length);
+				}
+				response = getHttpResponse(https);
+			} else {
+				LOGGER.info("Processing HTTP request");
+				HttpURLConnection http = (HttpURLConnection) con;
+				http.setRequestMethod("POST");
+				http.setRequestProperty("Content-Type", "application/json; utf-8");
+				try (OutputStream os = con.getOutputStream()) {
+					byte[] input = jsonString.getBytes("utf-8");
+					os.write(input, 0, input.length);
+				}
+				response = getHttpResponse(http);
+			}
+			LOGGER.info("Response received.");
+
+		} catch (Exception e) {
+			LOGGER.error("Error occured");
+			e.printStackTrace();
+		}
+		return response;
+
+	}
+
+	private String getHttpResponse(URLConnection con) throws UnsupportedEncodingException, IOException {
 		StringBuilder response = null;
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream(), "utf-8"))) {
 			response = new StringBuilder();

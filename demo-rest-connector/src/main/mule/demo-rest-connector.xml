@@ -8,12 +8,16 @@ http://www.mulesoft.org/schema/mule/rest http://www.mulesoft.org/schema/mule/res
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="479c0925-1e07-4ff7-9da5-40a26a0be7d6" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
-	<rest:config name="REST_Config" protocol="HTTPS" doc:name="REST Config" doc:id="003a05cd-565e-4660-9b4e-db8e7a05dd87" host="reqres.in" basePath="/api/users/2" >
+	<rest:config name="REST_Config" protocol="HTTPS" doc:name="REST Config" doc:id="003a05cd-565e-4660-9b4e-db8e7a05dd87" host="reqres.in" basePath="/api/users" >
 		<rest:connection requiredParameter="20" />
 	</rest:config>
 	<flow name="demo-rest-connectorFlow" doc:id="eb0c2fac-4b21-4156-8bbf-b622f32ef085" >
 		<http:listener doc:name="Listener" doc:id="1fe8e35c-eaad-4141-b221-70ca9680223c" config-ref="HTTP_Listener_config" path="/api/*"/>
 		<rest:get-call doc:name="Get call" doc:id="f423483b-221c-4778-8d28-382bce1ad8e4" config-ref="REST_Config"/>
 		<logger level="INFO" doc:name="Logger" doc:id="10914797-a3d3-4c94-b926-019b225d7cf9" message="#[payload]"/>
+	</flow>
+	<flow name="demo-rest-connectorFlow1" doc:id="003c5f6a-04d9-4197-80a1-25acece6e7df" >
+		<http:listener doc:name="Listener" doc:id="581e3471-0c2d-4ba4-89c0-982aca685cb7" config-ref="HTTP_Listener_config" path="post"/>
+		<rest:post-call doc:name="Post call" doc:id="57ec370f-40b7-45ba-aab9-97e0e06dfa84" config-ref="REST_Config"/>
 	</flow>
 </mule>

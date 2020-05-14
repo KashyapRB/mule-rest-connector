@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.enquero.connector</groupId>
     <artifactId>rest-connector</artifactId>
-    <version>1.1.1</version>
+    <version>1.2.2</version>
     <packaging>mule-extension</packaging>
     <name>rest-connector</name>
 
