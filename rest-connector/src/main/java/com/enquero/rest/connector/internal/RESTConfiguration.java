@@ -23,6 +23,22 @@ public class RESTConfiguration {
 
 	@Parameter
 	public String basePath;
+	
+	@Parameter
+	public String indexName;
+	
+	@Parameter
+	public String type;
+	
+	
+
+	public String getIndexName() {
+		return indexName;
+	}
+
+	public String getType() {
+		return type;
+	}
 
 	public String getProtocol() {
 		return protocol;

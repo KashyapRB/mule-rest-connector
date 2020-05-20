@@ -13,6 +13,14 @@ import java.net.URLConnection;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
@@ -61,9 +69,16 @@ public class RESTOperations {
 		String protocol = c.getProtocol().equals("HTTPS") ? "https://" : "http://";
 
 		try {
-			URL url = new URL(protocol + c.getHost() + c.getBasePath());
+			URL url = new URL(
+					protocol + c.getHost() + ":" + c.getBasePath() + "/" + c.getIndexName() + "/" + c.getType());
 			URLConnection con = url.openConnection();
-			String jsonString = "{\"name\": \"" + param.getFirstName() + "\", \"job\":\"" + param.getJob() + "\"}";
+
+//			String jsonString = "{" + c.getType() + ": {\"name\": \"" + param.getFirstName() + "\", \"job\":\""
+//					+ param.getJob() + "\"}}";
+			
+			  String jsonString = "{\"name\": \"" + param.getFirstName() + "\", \"job\":\""
+			  + param.getJob() + "\"}";
+			 
 			con.setDoOutput(true);
 			con.addRequestProperty("User-Agent", "Chrome");
 
@@ -78,19 +93,40 @@ public class RESTOperations {
 				}
 				response = getHttpResponse(https);
 			} else {
+
 				LOGGER.info("Processing HTTP request");
-				HttpURLConnection http = (HttpURLConnection) con;
-				http.setRequestMethod("POST");
-				http.setRequestProperty("Content-Type", "application/json; utf-8");
-				try (OutputStream os = con.getOutputStream()) {
-					byte[] input = jsonString.getBytes("utf-8");
-					os.write(input, 0, input.length);
+
+				/*
+				 * CloseableHttpClient httpclient = HttpClients.createDefault(); HttpPost
+				 * httpPost = new HttpPost(protocol + c.getHost() + ":" + c.getBasePath() + "/"
+				 * + c.getIndexName() + "/create/" + param.getFirstName() +
+				 * System.currentTimeMillis()); HttpEntity stringEntity = new
+				 * StringEntity(jsonString, ContentType.APPLICATION_JSON);
+				 * httpPost.setEntity(stringEntity);
+				 * 
+				 * LOGGER.info("HTTP response:" + httpPost);
+				 * 
+				 * CloseableHttpResponse response2 = httpclient.execute(httpPost);
+				 */
+				try {
+					HttpURLConnection http = (HttpURLConnection) con;
+					http.setRequestMethod("POST");
+					http.setRequestProperty("Content-Type", "application/json; utf-8");
+					try (OutputStream os = con.getOutputStream()) {
+						byte[] input = jsonString.getBytes("utf-8");
+						os.write(input, 0, input.length);
+					}
+
+					LOGGER.info("HTTP:" + http.toString());
+					response = getHttpResponse(http);
+					LOGGER.info("HTTP:" + response);
+				} catch (Exception e) {
+					System.out.println("ERROR NO :101:" + e.toString());
 				}
-				response = getHttpResponse(http);
 			}
-			LOGGER.info("Response received.");
 
 		} catch (Exception e) {
+			LOGGER.info("ERROR" + e);
 			LOGGER.error("Error occured");
 			e.printStackTrace();
 		}
@@ -109,4 +145,5 @@ public class RESTOperations {
 		}
 		return response.toString();
 	}
+
 }

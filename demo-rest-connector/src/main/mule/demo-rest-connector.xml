@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:rest="http://www.mulesoft.org/schema/mule/rest" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:rest="http://www.mulesoft.org/schema/mule/rest"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/rest http://www.mulesoft.org/schema/mule/rest/current/mule-rest.xsd">
+http://www.mulesoft.org/schema/mule/rest http://www.mulesoft.org/schema/mule/rest/current/mule-rest.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="479c0925-1e07-4ff7-9da5-40a26a0be7d6" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
-	<rest:config name="REST_Config" protocol="HTTPS" doc:name="REST Config" doc:id="003a05cd-565e-4660-9b4e-db8e7a05dd87" host="reqres.in" basePath="/api/users" >
+	<rest:config name="REST_Config" protocol="HTTP" doc:name="REST Config" doc:id="003a05cd-565e-4660-9b4e-db8e7a05dd87" host="localhost" basePath="9200" indexName="enquero" type="employee">
 		<rest:connection requiredParameter="20" />
 	</rest:config>
 	<flow name="demo-rest-connectorFlow" doc:id="eb0c2fac-4b21-4156-8bbf-b622f32ef085" >
@@ -18,6 +19,20 @@ http://www.mulesoft.org/schema/mule/rest http://www.mulesoft.org/schema/mule/res
 	</flow>
 	<flow name="demo-rest-connectorFlow1" doc:id="003c5f6a-04d9-4197-80a1-25acece6e7df" >
 		<http:listener doc:name="Listener" doc:id="581e3471-0c2d-4ba4-89c0-982aca685cb7" config-ref="HTTP_Listener_config" path="post"/>
-		<rest:post-call doc:name="Post call" doc:id="57ec370f-40b7-45ba-aab9-97e0e06dfa84" config-ref="REST_Config"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="dbbc56a5-4062-4897-9a0f-4f2f8cc6941d" mimeType="application/json"/>
+		<rest:post-call doc:name="Post call" doc:id="57ec370f-40b7-45ba-aab9-97e0e06dfa84" config-ref="REST_Config" outputMimeType="application/json" firstName="#[message.payload.name]" job="#[message.payload.job]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="89c4d1c3-67f4-4ad5-ad8b-f8f18a3dce13" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="7db69a0a-d345-46ed-962e-07fe26d47af3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="demo-rest-connectorFlow2" doc:id="6a4c79db-ee29-4038-80d3-c9921870e1a0" >
+		<http:listener doc:name="Listener" doc:id="33314e83-41ba-4521-afa9-46c1c3d7302d" config-ref="HTTP_Listener_config" path="/endpoint"/>
+		<rest:post-call doc:name="Post call" doc:id="f8c75f5e-f2ab-4652-ac71-fa0d7ec8eb3b" config-ref="REST_Config" firstName="Shiva" job="106" outputMimeType="application/json"/>
 	</flow>
 </mule>
