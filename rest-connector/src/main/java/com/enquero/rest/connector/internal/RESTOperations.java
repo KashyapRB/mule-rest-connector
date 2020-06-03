@@ -36,30 +36,25 @@ public class RESTOperations {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RESTOperations.class);
 
-	@MediaType(value = ANY, strict = false)
-	@Alias("getCall")
-	public String getCall(@Config RESTConfiguration config) {
-
-		LOGGER.info("Sending a get request....");
-
-		String response = null;
-		String protocol = config.protocol.equals("HTTPS") ? "https://" : "http://";
-		try {
-			URL url = new URL(protocol + config.getHost() + config.getBasePath());
-			LOGGER.info("URL:" + url);
-			URLConnection con = url.openConnection();
-			con.addRequestProperty("User-Agent", "Chrome");
-			LOGGER.info("Response recieved.........");
-			response = getHttpResponse(con);
-			LOGGER.info("payload:" + response);
-
-		} catch (IOException e) {
-			LOGGER.error("Error occured");
-			e.printStackTrace();
-		}
-
-		return response;
-	}
+	/*
+	 * @MediaType(value = ANY, strict = false)
+	 * 
+	 * @Alias("getCall") public String getCall(@Config RESTConfiguration config) {
+	 * 
+	 * LOGGER.info("Sending a get request....");
+	 * 
+	 * String response = null; String protocol = config.protocol.equals("HTTPS") ?
+	 * "https://" : "http://"; try { URL url = new URL(protocol + config.getHost() +
+	 * config.getBasePath()); LOGGER.info("URL:" + url); URLConnection con =
+	 * url.openConnection(); con.addRequestProperty("User-Agent", "Chrome");
+	 * LOGGER.info("Response recieved........."); response = getHttpResponse(con);
+	 * LOGGER.info("payload:" + response);
+	 * 
+	 * } catch (IOException e) { LOGGER.error("Error occured"); e.printStackTrace();
+	 * }
+	 * 
+	 * return response; }
+	 */
 
 	@MediaType(value = ANY, strict = false)
 	@Alias("postCall")
@@ -75,10 +70,10 @@ public class RESTOperations {
 
 //			String jsonString = "{" + c.getType() + ": {\"name\": \"" + param.getFirstName() + "\", \"job\":\""
 //					+ param.getJob() + "\"}}";
-			
-			  String jsonString = "{\"name\": \"" + param.getFirstName() + "\", \"job\":\""
-			  + param.getJob() + "\"}";
-			 
+
+//			String jsonString = "{\"name\": \"" + param.getFirstName() + "\"}";
+			String jsonString = param.getFirstName();
+
 			con.setDoOutput(true);
 			con.addRequestProperty("User-Agent", "Chrome");
 
@@ -96,18 +91,6 @@ public class RESTOperations {
 
 				LOGGER.info("Processing HTTP request");
 
-				/*
-				 * CloseableHttpClient httpclient = HttpClients.createDefault(); HttpPost
-				 * httpPost = new HttpPost(protocol + c.getHost() + ":" + c.getBasePath() + "/"
-				 * + c.getIndexName() + "/create/" + param.getFirstName() +
-				 * System.currentTimeMillis()); HttpEntity stringEntity = new
-				 * StringEntity(jsonString, ContentType.APPLICATION_JSON);
-				 * httpPost.setEntity(stringEntity);
-				 * 
-				 * LOGGER.info("HTTP response:" + httpPost);
-				 * 
-				 * CloseableHttpResponse response2 = httpclient.execute(httpPost);
-				 */
 				try {
 					HttpURLConnection http = (HttpURLConnection) con;
 					http.setRequestMethod("POST");

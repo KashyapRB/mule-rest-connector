@@ -9,13 +9,7 @@ public class CustomParameter {
 
 	@Parameter
 	@Expression(ExpressionSupport.SUPPORTED)
-	@Optional(defaultValue = "bharath")
 	private String firstName;
-
-	@Parameter
-	@Expression(ExpressionSupport.SUPPORTED)
-	@Optional(defaultValue = "developer")
-	private String job;
 
 	public String getFirstName() {
 		return firstName;
@@ -23,14 +17,6 @@ public class CustomParameter {
 
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
-	}
-
-	public String getJob() {
-		return job;
-	}
-
-	public void setJob(String job) {
-		this.job = job;
 	}
 
 }
